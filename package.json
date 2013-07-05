@@ -1,0 +1,19 @@
+{
+  "name": "colorme",
+  "description": "color me app",
+  "version": "0.0.1-4",
+  "private": true,
+  "author": "Charles Montgomery <cmfurious@dotfury.com> (dotfury.com)",
+  "dependencies": {
+    "express": "3.x",
+    "socket.io": "~0.9.6",
+    "mime": "~1.2.7"
+  },
+  "subdomain": "dotfury-colorme",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "0.8.x"
+  }
+}

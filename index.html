@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Color Me</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta name="description" content="Color me, an experiment in node.js and socket.io. Connect and change the color of the screen.">
+		<meta name="author" content="Charles Montgomery">
+	 <style>
+	 	* { padding: 0; margin: 0; }
+	    body { color: #FFFFFF; font-family: Helvetica, Verdana, sans-serif; }
+	    #text { 
+	      text-align: center;
+	      font-size: 30px;
+	      margin: 20% auto 0;
+	      font-weight: bold;
+	      text-shadow: 1px 1px 1px #000000;
+	      min-width: 180px;
+	      max-width: 260px;
+	    }
+	  
+	    button, .text {
+	      background-color: black;
+	      background-color: rgba(0,0,0,.5);
+	      color: #FFFFFF;
+	      border: none;
+	      cursor: pointer;
+	    }
+
+	    button {
+	    	padding: 5px;
+	    }
+	    .text {
+	    	cursor: default;
+	    	padding: 5px;
+	    }
+	    h1 {
+	      display: inline;
+	      margin-right: 2%;
+	      text-shadow: 1px 1px 1px #000000;
+	    }
+	    #count {
+	    	display: inline;
+	    	margin: 0 2%;
+	    }
+	    .link {
+	    	position: absolute;
+	    	right: 0;
+	    	bottom: 0;
+	 		text-decoration: none;
+	 		color: #FFFFFF;
+	 		cursor: pointer;
+	    }
+	    .link:hover {
+	    	color: #FFFFFF;
+	    }
+	    #loading {
+	    	position: absolute;
+	    	top: 0;
+	    	left: 0;
+	    	width: 100%;
+	    	height: 100%;
+	    	background: #000000;
+	    	z-index: 300;
+	    	text-align: center;
+	    }
+	    #loading span {
+	    	position: absolute;
+	    	top: 50%;
+	    }
+	    @media screen and (max-width: 767px) {
+	    	h1 {
+	    		position: absolute;
+	    		bottom: 0;
+	    		left: 0;
+	    		font-size: 1em;
+	    		margin: 0;
+	    	}
+	    	button { width: 32.5%; height: 50px; margin: 2px 0; padding: 0; }
+	    	#text { font-size: 1.5em; }
+	    	.twitter-share-button, .fb-like {
+	    		display: none !important;
+	    	}
+	    	#count {
+	    		margin: 0;
+	    		display: block;
+	    		width: 100%;
+	    		text-align: center;
+	    	}
+	    }
+	    @media screen and (max-width: 479px) {
+	    	button { width: 49%; height: 50px; margin: 2px 0; padding: 0; }
+	    }
+	 </style>
+	</head>
+	<body>
+		<div id="fb-root"></div>
+		<script>(function(d, s, id) {
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) return;
+		js = d.createElement(s); js.id = id;
+		js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=405904989478128";
+		fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));</script>
+
+		<div id="loading"><span>initializing</span></div>
+		<h1 class="text">Color Me!</h1>
+		<button rel='r' type='add'>+ RED</button>
+		<button rel='g' type='add'>+ GREEN</button>
+		<button rel='b' type='add'>+ BLUE</button>
+		<button rel='r' type='minus'>- RED</button>
+		<button rel='g' type='minus'>- GREEN</button>
+		<button rel='b' type='minus'>- BLUE</button>
+
+		<p id="count" class="text"></p>
+
+		<a href="https://twitter.com/share" class="twitter-share-button" data-via="dotfury">Tweet</a>
+		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+		<div class="fb-like" data-href="http://dotfury-colorme.nodejitsu.com/" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
+
+		<p id="text" class="text"></p>
+		
+		<a href="http://dotfury.com" class="text link" target="_blank">dotfury</a>
+
+		<script src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript">
+			window.onload = function() {
+
+				var socket = io.connect('/', { rememberTransport: false});
+				socket.on('news', function (data) {
+					var count = document.getElementById('count')
+					count.innerHTML = 'Users: ' + data.count;
+					document.title = 'Color Me :: ' + data.count;
+				});
+
+				var textContainer = document.getElementById('text');
+				var buttons = document.getElementsByTagName('button');
+				var i = buttons.length;
+
+				while (i--) {
+					buttons[i].addEventListener('click', function(e) {
+						var color = e.target.getAttribute('rel');
+						var type = e.target.getAttribute('type');
+						if (type == 'add') {
+							socket.emit('add', {color: color});
+						} else {
+						 	socket.emit('minus', {color: color});
+						}
+					}, false);
+				}
+
+				socket.on('load', function() {
+					document.getElementById('loading').style.display = 'none';
+				});
+
+				socket.on('color', function(data) {
+					parseColor(data.color);
+				});
+
+				function parseColor(colorObj) {
+					var colorStr = 'rgb(' + colorObj.r + ', ' + colorObj.g + ', ' + colorObj.b + ')';
+					document.body.style.backgroundColor = colorStr;
+					displayColor(colorStr);
+				}
+				
+				function displayColor(string) {
+				  textContainer.innerHTML = string;
+				}
+
+			};
+		</script>		
+	</body>
+</html>
