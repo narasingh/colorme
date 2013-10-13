@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Color Me</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
 		<meta name="description" content="Color me, an experiment in node.js and socket.io. Connect and change the color of the screen.">
 		<meta name="author" content="Charles Montgomery">
 	 <style>
@@ -76,7 +76,7 @@
 	    		font-size: 1em;
 	    		margin: 0;
 	    	}
-	    	button { width: 32.5%; height: 50px; margin: 2px 0; padding: 0; }
+	    	button { width: 32.85%; height: 50px; margin: 2px 0; padding: 0; }
 	    	#text { font-size: 1.5em; }
 	    	.twitter-share-button, .fb-like {
 	    		display: none !important;
@@ -88,8 +88,11 @@
 	    		text-align: center;
 	    	}
 	    }
+	    @media screen and (min-width: 481px) and (max-width: 700px) {
+	    	button { width: 49.5%; height: 50px; margin: 2px 0; padding: 0; }
+	    }
 	    @media screen and (max-width: 479px) {
-	    	button { width: 49%; height: 50px; margin: 2px 0; padding: 0; }
+	    	button { width: 49.4%; height: 50px; margin: 2px 0; padding: 0; }
 	    }
 	 </style>
 	</head>

@@ -1,7 +1,7 @@
 {
   "name": "colorme",
   "description": "color me app",
-  "version": "0.0.1-4",
+  "version": "0.0.1-5",
   "private": true,
   "author": "Charles Montgomery <cmfurious@dotfury.com> (dotfury.com)",
   "dependencies": {
