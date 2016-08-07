@@ -9,7 +9,7 @@ var colorObj = {
 	b: 0
 };
 
-server.listen(3000);
+server.listen(3000, '0.0.0.0');
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
