@@ -5,20 +5,28 @@
 		<title>Color Me</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
 		<meta name="description" content="Color me, an experiment in node.js and socket.io. Connect and change the color of the screen.">
-		<meta name="author" content="Charles Montgomery">
 	 <style>
 	 	* { padding: 0; margin: 0; }
 	    body { color: #FFFFFF; font-family: Helvetica, Verdana, sans-serif; }
 	    #text { 
 	      text-align: center;
 	      font-size: 30px;
-	      margin: 20% auto 0;
+	      margin: 0% auto 0;
 	      font-weight: bold;
 	      text-shadow: 1px 1px 1px #000000;
 	      min-width: 180px;
 	      max-width: 260px;
 	    }
-	  
+		.stopwatch{
+			background: rgba(0,0,0,.5);
+			padding: 90px 0;
+			width: 217px;
+			text-align:center;
+			border-radius: 110px;
+			font-size: 2em;
+			margin: 10% auto;
+			box-shadow: 2px 2px 2px #000;
+		}
 	    button, .text {
 	      background-color: black;
 	      background-color: rgba(0,0,0,.5);
@@ -28,7 +36,8 @@
 	    }
 
 	    button {
-	    	padding: 5px;
+	    	padding: 5px 15px;
+			clear:both;
 	    }
 	    .text {
 	    	cursor: default;
@@ -77,6 +86,7 @@
 	    		font-size: 1em;
 	    		margin: 0;
 	    	}
+			.text{ top: 0; height: 20px;}
 	    	button { width: 32.85%; height: 50px; margin: 2px 0; padding: 0; }
 	    	#text { font-size: 1.5em; }
 	    	.twitter-share-button, .fb-like {
@@ -102,33 +112,20 @@
 	</head>
 	<body>
 		<div id="fb-root"></div>
-		<script>(function(d, s, id) {
-		var js, fjs = d.getElementsByTagName(s)[0];
-		if (d.getElementById(id)) return;
-		js = d.createElement(s); js.id = id;
-		js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=405904989478128";
-		fjs.parentNode.insertBefore(js, fjs);
-		}(document, 'script', 'facebook-jssdk'));</script>
 
 		<div id="loading"><span>initializing</span></div>
 		<h1 class="text">Color Me!</h1>
-		<button rel='r' type='add'>+ RED</button>
-		<button rel='g' type='add'>+ GREEN</button>
-		<button rel='b' type='add'>+ BLUE</button>
-		<button rel='r' type='minus'>- RED</button>
-		<button rel='g' type='minus'>- GREEN</button>
-		<button rel='b' type='minus'>- BLUE</button>
-
 		<p id="count" class="text"></p>
-
-		<a href="https://twitter.com/share" class="twitter-share-button" data-via="dotfury">Tweet</a>
-		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-
-		<div class="fb-like" data-href="http://dotfury-colorme.nodejitsu.com/" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
-
-		<p id="text" class="text"></p>
 		
-		<a href="http://dotfury.com" class="text link" target="_blank">dotfury</a>
+		<div class="stopwatch"></div>
+		<p id="text" class="text"></p>	
+		
+		<button rel='r' type='add' style="background:#ff0000;">+</button>
+		<button rel='g' type='add' style="background:#006400;">+</button>
+		<button rel='b' type='add' style="background:#00008b;">+</button>
+		<button rel='r' type='minus' style="background:#ff0000;">-</button>
+		<button rel='g' type='minus' style="background:#006400;">-</button>
+		<button rel='b' type='minus' style="background:#00008b;">-</button>
 
 		<script src="/socket.io/socket.io.js"></script>
 		<script type="text/javascript">
@@ -144,9 +141,7 @@
 				var textContainer = document.getElementById('text');
 				var buttons = document.getElementsByTagName('button');
 				var i = buttons.length;
-
-				while (i--) {
-					buttons[i].addEventListener('click', function(e) {
+				var changeColor = function(e){
 						var color = e.target.getAttribute('rel');
 						var type = e.target.getAttribute('type');
 						if (type == 'add') {
@@ -154,7 +149,10 @@
 						} else {
 						 	socket.emit('minus', {color: color});
 						}
-					}, false);
+				};
+
+				while (i--) {
+					buttons[i].addEventListener('click', changeColor, false);
 				}
 
 				socket.on('load', function() {
@@ -174,6 +172,21 @@
 				function displayColor(string) {
 				  textContainer.innerHTML = string;
 				}
+				var timer;
+				var html = document.querySelector(".stopwatch");
+				html.innerHTML = 120;
+				var interval = setInterval(function(){
+					timer = ~~html.innerHTML;
+					html.innerHTML = --timer;
+					if(timer === 0 ){
+						clearInterval(interval);
+						html.innerHTML = 'STOP';
+						i = document.querySelectorAll("button").length;
+						while(i--){
+							buttons[i].removeEventListener('click', changeColor, false );
+						}	
+					}
+				}, 1000);
 
 			};
 		</script>		
