@@ -14,6 +14,9 @@ server.listen(3000);
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
+app.get('/colorme', function(req, res){
+	res.sendfile(__dirname + '/view.html');
+});
 
 io.sockets.on('connection', function (socket) {
 	this.emit('color', {color: colorObj});
@@ -40,6 +43,10 @@ io.sockets.on('connection', function (socket) {
 		colorObj[color] = colorObj[color] - 1;
 		io.sockets.emit('color', {color: colorObj});
 	});
+
+	socket.on("stop", function(isStop){
+		if(isStop){
+			io.sockets.emit('stopwatch', isStop);
+		}
+	});
 });
-
-

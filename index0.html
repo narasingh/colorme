@@ -27,6 +27,18 @@
 			margin: 10% auto;
 			box-shadow: 2px 2px 2px #000;
 		}
+	    button, .text {
+	      background-color: black;
+	      background-color: rgba(0,0,0,.5);
+	      color: #FFFFFF;
+	      border: none;
+	      cursor: pointer;
+	    }
+
+	    button {
+	    	padding: 5px 15px;
+			clear:both;
+	    }
 	    .text {
 	    	cursor: default;
 	    	padding: 5px;
@@ -87,6 +99,15 @@
 	    		text-align: center;
 	    	}
 	    }
+	    @media screen and (min-width: 481px) and (max-width: 700px) {
+	    	button { width: 49.5%; height: 50px; margin: 2px 0; padding: 0; }
+	    }
+	    @media screen and (max-width: 479px) {
+	    	button { width: 49.4%; height: 50px; margin: 2px 0; padding: 0; }
+	    }
+	   	@media screen and (max-width: 400px) {
+	    	button { width: 49.1%; height: 50px; margin: 2px 0; padding: 0; }
+	    }
 	 </style>
 	</head>
 	<body>
@@ -99,9 +120,17 @@
 		<div class="stopwatch"></div>
 		<p id="text" class="text"></p>
 
+		<button rel='r' type='add' style="background:#ff0000;">+</button>
+		<button rel='g' type='add' style="background:#006400;">+</button>
+		<button rel='b' type='add' style="background:#00008b;">+</button>
+		<button rel='r' type='minus' style="background:#ff0000;">-</button>
+		<button rel='g' type='minus' style="background:#006400;">-</button>
+		<button rel='b' type='minus' style="background:#00008b;">-</button>
+
 		<script src="/socket.io/socket.io.js"></script>
 		<script type="text/javascript">
 			window.onload = function() {
+
 				var socket = io.connect('/', { rememberTransport: false});
 				socket.on('news', function (data) {
 					var count = document.getElementById('count')
@@ -110,6 +139,21 @@
 				});
 
 				var textContainer = document.getElementById('text');
+				var buttons = document.getElementsByTagName('button');
+				var i = buttons.length;
+				var changeColor = function(e){
+						var color = e.target.getAttribute('rel');
+						var type = e.target.getAttribute('type');
+						if (type == 'add') {
+							socket.emit('add', {color: color});
+						} else {
+						 	socket.emit('minus', {color: color});
+						}
+				};
+
+				while (i--) {
+					buttons[i].addEventListener('click', changeColor, false);
+				}
 
 				socket.on('load', function() {
 					document.getElementById('loading').style.display = 'none';
@@ -129,17 +173,21 @@
 				  textContainer.innerHTML = string;
 				}
 				var timer;
-		    var html = document.querySelector(".stopwatch");
-		    html.innerHTML = 20;
-		    var interval = setInterval(function(){
-		      timer = ~~html.innerHTML;
-		      html.innerHTML = --timer;
-		      if(timer === 0 ){
-		        clearInterval(interval);
-		        html.innerHTML = 'STOP';
-						socket.emit("stop", true );
-		      }
-		    }, 1000);
+				var html = document.querySelector(".stopwatch");
+				html.innerHTML = 120;
+				var interval = setInterval(function(){
+					timer = ~~html.innerHTML;
+					html.innerHTML = --timer;
+					if(timer === 0 ){
+						clearInterval(interval);
+						html.innerHTML = 'STOP';
+						i = document.querySelectorAll("button").length;
+						while(i--){
+							buttons[i].removeEventListener('click', changeColor, false );
+						}
+					}
+				}, 1000);
+
 			};
 		</script>
 	</body>

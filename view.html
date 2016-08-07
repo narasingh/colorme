@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Color Me</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<style>
+body{ font: 14px Helvetica, Verdana, sans-serif;}
+button, .text {
+  background-color: black;
+  background-color: rgba(0,0,0,.5);
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
+}
+button {
+  padding: 10px 15px;
+  clear:both;
+}
+@media screen and (max-width: 767px){
+  button { width: 32.85%; height: 70px; margin: 2px 0; padding: 0; }
+}
+@media screen and (min-width: 481px) and (max-width: 700px) {
+  button { width: 49.5%; height: 70px; margin: 2px 0; padding: 0; }
+}
+@media screen and (max-width: 479px) {
+  button { width: 49.4%; height: 70px; margin: 2px 0; padding: 0; }
+}
+@media screen and (max-width: 400px) {
+  button { width: 49.1%; height: 70px; margin: 2px 0; padding: 0; }
+}
+</style>
+</head>
+<body>
+  <button rel='r' type='add' style="background:#ff0000;">+</button>
+  <button rel='g' type='add' style="background:#006400;">+</button>
+  <button rel='b' type='add' style="background:#00008b;">+</button>
+  <button rel='r' type='minus' style="background:#ff0000;">-</button>
+  <button rel='g' type='minus' style="background:#006400;">-</button>
+  <button rel='b' type='minus' style="background:#00008b;">-</button>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+  window.onload = function(){
+
+    var socket = io.connect('/', { rememberTransport: false});
+    var buttons = document.getElementsByTagName('button');
+    var i = buttons.length;
+    var changeColor = function(e){
+        var color = e.target.getAttribute('rel');
+        var type = e.target.getAttribute('type');
+        if (type == 'add') {
+          socket.emit('add', {color: color});
+        } else {
+          socket.emit('minus', {color: color});
+        }
+    };
+    while (i--) {
+      buttons[i].addEventListener('click', changeColor, false);
+    }
+    socket.on('stopwatch', function(isStop){
+      if(isStop){
+        i = document.querySelectorAll("button").length;
+        while(i--){
+          buttons[i].removeEventListener('click', changeColor, false );
+        }
+      }
+    })
+  }
+  </script>
+</body>
+</html>
